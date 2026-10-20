@@ -40,7 +40,7 @@ export async function staffLoginAction(_state: StaffAuthState, form: FormData): 
   if (input.data.role === "admin") return { error: "Platform administrator sign-in requires an approved MFA implementation." };
 
   const email = input.data.email.toLowerCase().trim();
-  const neededRole = input.data.role === "admin" ? "PLATFORM_ADMIN" : "ELECTORAL_ADMIN";
+  const neededRole = "ELECTORAL_ADMIN" as const;
   let destination: string | undefined;
 
   try {
