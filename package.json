@@ -1,6 +1,6 @@
 {
   "name": "octalve-vote",
-  "version": "0.2.0",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -24,7 +24,9 @@
     "pg": "^8.16.3",
     "bcryptjs": "^3.0.3",
     "zod": "^4.1.12",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "nodemailer": "10.1.7",
+    "csv-parse": "7.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

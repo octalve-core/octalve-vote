@@ -24,6 +24,12 @@ enum SubscriptionPlan {
   UNLIMITED
 }
 
+enum PaymentClaimStatus {
+  SUBMITTED
+  NEEDS_EVIDENCE
+  REJECTED
+}
+
 enum StaffRole {
   ELECTORAL_ADMIN
   PLATFORM_ADMIN
@@ -50,6 +56,8 @@ model ElectoralBody {
   updatedAt          DateTime         @updatedAt
   emailVerifiedAt    DateTime?
 
+  emailChallenges EmailVerificationChallenge[]
+  paymentClaims   PaymentClaim[]
   reviews       OrganizationReview[]
   staffAccounts StaffAccount[]
   elections     Election[]
@@ -74,6 +82,7 @@ model StaffAccount {
   sessions         StaffSession[]
   auditEvents      AuthAuditEvent[]
   organizationReviews OrganizationReview[]
+  paymentReviews PaymentClaim[]
 
   @@index([electoralBodyId, role])
 }
@@ -195,6 +204,7 @@ model Voter {
   ballots       Ballot[]
 
   @@index([electoralBodyId, electionId])
+  @@unique([electionId, email])
 }
 
 model Ballot {
@@ -244,4 +254,36 @@ model PlatformSettings {
   supportEmail   String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model EmailVerificationChallenge {
+  id             String   @id @default(cuid())
+  electoralBodyId String
+  tokenHash      String   @unique
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  createdAt      DateTime @default(now())
+  electoralBody  ElectoralBody @relation(fields: [electoralBodyId], references: [id], onDelete: Restrict)
+
+  @@index([electoralBodyId, expiresAt])
+}
+
+model PaymentClaim {
+  id               String @id @default(cuid())
+  electoralBodyId  String
+  reference        String @unique
+  amountKobo       BigInt
+  currency         String @default("NGN")
+  note             String?
+  status           PaymentClaimStatus @default(SUBMITTED)
+  reviewReason     String?
+  reviewerId       String?
+  reviewedAt       DateTime?
+  createdAt        DateTime @default(now())
+
+  electoralBody ElectoralBody @relation(fields: [electoralBodyId], references: [id], onDelete: Restrict)
+  reviewer StaffAccount? @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  @@index([electoralBodyId, createdAt])
+  @@index([status, createdAt])
 }
