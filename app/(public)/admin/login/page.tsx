@@ -3,6 +3,7 @@ import { ShieldCheck } from "lucide-react";
 import { StaffLoginForm } from "@/components/sections/auth/staff-login-form";
 import { isStaffLoginEnabled } from "@/lib/auth/config";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Platform administrator sign-in" };
 
 export default function PlatformLoginPage() {
