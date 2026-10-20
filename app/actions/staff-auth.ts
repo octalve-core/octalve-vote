@@ -33,6 +33,9 @@ export async function staffLoginAction(_state: StaffAuthState, form: FormData): 
     email: form.get("email"), password: form.get("password"), role: form.get("role")
   });
   if (!input.success) return { error: "Enter a valid email address and password." };
+  // Platform-administrator MFA/provisioning is not available yet; fail closed
+  // even if staff sign-in is explicitly enabled for electoral preview testing.
+  if (input.data.role === "admin") return { error: "Platform administrator sign-in requires an approved MFA implementation." };
 
   const email = input.data.email.toLowerCase().trim();
   const neededRole = input.data.role === "admin" ? "PLATFORM_ADMIN" : "ELECTORAL_ADMIN";

@@ -11,7 +11,7 @@ export default function PlatformLoginPage() {
       <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-indigo-600 text-white"><ShieldCheck className="size-7" /></span>
       <h1 className="mt-5 text-center text-3xl font-extrabold">Platform Administrator</h1>
       <p className="mt-3 text-center text-sm leading-6 text-slate-600">Authorized administrator accounts only. Public registration does not create platform administrators.</p>
-      <StaffLoginForm role="admin" enabled={isStaffLoginEnabled()} />
+      <StaffLoginForm role="admin" enabled={false} />
       <p className="mt-6 text-center text-xs text-amber-800">Staff MFA is not implemented in Batch 2. Production administrative sign-in must remain disabled until MFA passes review.</p>
     </div>
   </main>;
