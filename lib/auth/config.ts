@@ -10,3 +10,12 @@ export function isStaffLoginEnabled(): boolean {
 export function isSignupEnabled(): boolean {
   return isStaffLoginEnabled() && process.env.ENABLE_ELECTORAL_SIGNUP === "true";
 }
+
+// Admin access and approvals remain OFF unless MFA is provisioned and enabled.
+export function isAdminMfaEnabled(): boolean {
+  return isStaffLoginEnabled() && process.env.ENABLE_ADMIN_MFA === "true" &&
+    /^[a-f0-9]{64}$/i.test(process.env.MFA_ENCRYPTION_KEY ?? "");
+}
+export function areApprovalsEnabled(): boolean {
+  return isAdminMfaEnabled() && process.env.ENABLE_ORGANIZATION_APPROVALS === "true";
+}

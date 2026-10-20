@@ -48,7 +48,9 @@ model ElectoralBody {
   customVoterIdField String?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
+  emailVerifiedAt    DateTime?
 
+  reviews       OrganizationReview[]
   staffAccounts StaffAccount[]
   elections     Election[]
   voters        Voter[]
@@ -63,12 +65,15 @@ model StaffAccount {
   isDisabled       Boolean       @default(false)
   failedAttempts   Int           @default(0)
   lockedUntil      DateTime?
+  mfaSecretEncrypted String?
+  mfaLastCounter    BigInt?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
   electoralBody    ElectoralBody? @relation(fields: [electoralBodyId], references: [id], onDelete: Restrict)
   sessions         StaffSession[]
   auditEvents      AuthAuditEvent[]
+  organizationReviews OrganizationReview[]
 
   @@index([electoralBodyId, role])
 }
@@ -80,6 +85,7 @@ model StaffSession {
   createdAt  DateTime     @default(now())
   expiresAt  DateTime
   revokedAt  DateTime?
+  mfaVerifiedAt DateTime?
 
   account    StaffAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
   @@index([accountId, expiresAt])
@@ -99,6 +105,20 @@ model AuthAuditEvent {
   account    StaffAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
 
   @@index([accountId, createdAt])
+}
+
+model OrganizationReview {
+  id             String       @id @default(cuid())
+  electoralBodyId String
+  reviewerId     String
+  decision       String
+  reason         String
+  createdAt      DateTime     @default(now())
+
+  body           ElectoralBody @relation(fields: [electoralBodyId], references: [id], onDelete: Restrict)
+  reviewer       StaffAccount  @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  @@index([electoralBodyId, createdAt])
 }
 
 model Election {

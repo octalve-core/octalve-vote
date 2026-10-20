@@ -5,17 +5,17 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { StaffRole } from "@prisma/client";
 import { getDb } from "@/lib/db/client";
-import { isStaffLoginEnabled, SESSION_COOKIE, SESSION_DAYS } from "@/lib/auth/config";
+import { isAdminMfaEnabled, isStaffLoginEnabled, SESSION_COOKIE, SESSION_DAYS } from "@/lib/auth/config";
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-export async function createStaffSession(accountId: string) {
+export async function createStaffSession(accountId: string, mfaVerified = false) {
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 86_400_000);
   const db = getDb();
-  await db.staffSession.create({ data: { accountId, tokenHash: hashToken(token), expiresAt } });
+  await db.staffSession.create({ data: { accountId, tokenHash: hashToken(token), expiresAt, mfaVerifiedAt: mfaVerified ? new Date() : null } });
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -34,6 +34,7 @@ export async function readStaffSession() {
     select: {
       expiresAt: true,
       revokedAt: true,
+      mfaVerifiedAt: true,
       account: {
         select: {
           id: true, email: true, role: true, isDisabled: true,
@@ -48,7 +49,7 @@ export async function readStaffSession() {
   if (!session || session.revokedAt || session.expiresAt <= new Date() || session.account.isDisabled) return null;
   // A previously issued or manually inserted platform session cannot bypass
   // the missing platform-admin MFA flow. This role is intentionally unavailable.
-  if (session.account.role === "PLATFORM_ADMIN") return null;
+  if (session.account.role === "PLATFORM_ADMIN" && (!isAdminMfaEnabled() || !session.mfaVerifiedAt)) return null;
   if (session.account.electoralBody?.status === "SUSPENDED") return null;
   return session.account;
 }
