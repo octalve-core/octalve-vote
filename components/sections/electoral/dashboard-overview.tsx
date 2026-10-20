@@ -12,6 +12,7 @@ export type DashboardOverviewProps = {
   organization: string;
   accountStatus: "PENDING" | "APPROVED" | "SUSPENDED";
   paymentStatus: "UNPAID" | "PENDING_VERIFICATION" | "PAID";
+  draftCreationAvailable: boolean;
   elections: ElectionSummary[];
   selectedId: string | null;
   totalElections: number;
@@ -42,7 +43,9 @@ export function DashboardOverview(props: DashboardOverviewProps) {
           <button className="rounded-xl bg-white px-4 py-3 text-sm font-bold text-green-700 ring-1 ring-green-200 hover:bg-green-50">Apply</button>
         </form>}
         <Link href={props.selectedId ? "/electoral/dashboard?election=" + encodeURIComponent(props.selectedId) : "/electoral/dashboard"} aria-label="Refresh dashboard" className="rounded-xl border border-slate-200 bg-white p-3 text-slate-700 hover:bg-slate-50"><RefreshCcw className="size-5" /></Link>
-        <span aria-disabled="true" className="inline-flex items-center gap-2 rounded-xl bg-green-100 px-5 py-3 text-sm font-semibold text-green-700 opacity-70"><Plus className="size-4" /> New election (coming soon)</span>
+        {props.draftCreationAvailable
+          ? <Link href="/electoral/elections/new" className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700"><Plus className="size-4" /> New draft election</Link>
+          : <span aria-disabled="true" className="inline-flex items-center gap-2 rounded-xl bg-green-100 px-5 py-3 text-sm font-semibold text-green-700 opacity-70"><Plus className="size-4" /> Draft creation unavailable</span>}
       </div>
     </div>
     {selected && <section aria-label="Participation snapshot" className="mb-7 rounded-2xl border border-green-100 bg-white p-6 shadow-sm">

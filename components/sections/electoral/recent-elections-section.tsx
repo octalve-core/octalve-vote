@@ -17,7 +17,7 @@ export function RecentElectionsSection({ elections }: { elections: ElectionListI
     <ul className="mt-5 divide-y divide-slate-100">
       {elections.slice(0, 5).map(election => <li key={election.id}
         className="flex flex-wrap items-center justify-between gap-3 py-4">
-        <span className="font-medium text-slate-800">{election.title}</span>
+        <Link href={`/electoral/elections/${encodeURIComponent(election.id)}`} className="font-medium text-slate-800 hover:text-green-700 hover:underline">{election.title}</Link>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-600">
           {election.status.toLowerCase()}
         </span>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { requireStaffRole } from "@/lib/auth/session";
 import { getElectoralOverview } from "@/lib/electoral/overview";
 import { DashboardOverview } from "@/components/sections/electoral/dashboard-overview";
+import { canCreateDraft } from "@/lib/electoral/draft-policy";
 
 export const metadata: Metadata = { title: "Electoral dashboard" };
 
@@ -15,6 +16,7 @@ export default async function ElectoralDashboard({ searchParams }: { searchParam
     organization={body.name}
     accountStatus={body.status}
     paymentStatus={body.paymentStatus}
+    draftCreationAvailable={canCreateDraft(body.status, body.paymentStatus)}
     elections={overview.elections.map(e => ({ id: e.id, title: e.title, status: e.status }))}
     selectedId={overview.selected?.id ?? null}
     totalElections={overview.totalElections}
