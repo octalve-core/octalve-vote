@@ -8,7 +8,24 @@ permissions:
 jobs:
   build-and-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: octalve_ci
+          POSTGRES_PASSWORD: octalve_ci_only
+          POSTGRES_DB: octalve_vote_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U octalve_ci -d octalve_vote_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 15
+    env:
+      DATABASE_URL: postgresql://octalve_ci:octalve_ci_only@localhost:5432/octalve_vote_ci?schema=public
+      AUTH_THROTTLE_SECRET: octalve-vote-ci-ephemeral-throttle-secret-2026
+      ENABLE_STAFF_LOGIN: "true"
+      ENABLE_ELECTORAL_SIGNUP: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,6 +40,8 @@ jobs:
           echo OCTALVE_BASELINE_SQL_BEGIN
           cat /tmp/octalve-vote-baseline.sql
           echo OCTALVE_BASELINE_SQL_END
+      - name: Apply reviewed baseline to disposable CI PostgreSQL
+        run: npm run db:deploy
       - name: Typecheck
         run: npm run typecheck
       - name: Lint
