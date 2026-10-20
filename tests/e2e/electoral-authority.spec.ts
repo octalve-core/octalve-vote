@@ -55,7 +55,7 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await expect(page.getByRole("link", { name: "Create draft election" })).toHaveCount(0);
   await expect(page.getByRole("status")).toContainText("Draft creation is not available");
   await navigation.getByRole("link", { name: "Voters" }).click();
-  await expect(page.getByRole("heading", { name: "Voters", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Voter registers" })).toBeVisible();
   await navigation.getByRole("link", { name: "Support" }).click();
   await expect(page.getByRole("heading", { name: "Support", exact: true })).toBeVisible();
   await navigation.getByRole("link", { name: "Dashboard" }).click();
