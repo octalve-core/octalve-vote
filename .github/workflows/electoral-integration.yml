@@ -71,7 +71,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Browser-only electoral registration and authorization journey
-        run: npx playwright test tests/e2e/electoral-authority.spec.ts
+        run: npx playwright test tests/e2e/electoral-authority.spec.ts tests/e2e/email-verification.spec.ts
       - name: Upload continuous recording and trace
         if: always()
         uses: actions/upload-artifact@v4
