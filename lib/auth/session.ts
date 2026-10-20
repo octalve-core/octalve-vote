@@ -46,6 +46,9 @@ export async function readStaffSession() {
     }
   });
   if (!session || session.revokedAt || session.expiresAt <= new Date() || session.account.isDisabled) return null;
+  // A previously issued or manually inserted platform session cannot bypass
+  // the missing platform-admin MFA flow. This role is intentionally unavailable.
+  if (session.account.role === "PLATFORM_ADMIN") return null;
   if (session.account.electoralBody?.status === "SUSPENDED") return null;
   return session.account;
 }
