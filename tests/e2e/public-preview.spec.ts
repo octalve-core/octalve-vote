@@ -26,7 +26,7 @@ test("single continuous public and role-entry browser walkthrough", async ({ pag
   await expect(page.getByText(/review-only access/i)).toBeVisible();
 
   await page.getByRole("link", { name: /back to home/i }).click();
-  await page.getByRole("link", { name: /platform admin/i }).click();
+  await page.getByRole("link", { name: "Platform admin", exact: true }).click();
   await expect(page.getByRole("heading", { name: /oversight with boundaries/i })).toBeVisible();
   await expect(page.getByText(/review-only access/i)).toBeVisible();
 
