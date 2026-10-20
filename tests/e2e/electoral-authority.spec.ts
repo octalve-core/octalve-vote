@@ -139,8 +139,10 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   const reviewCard = page.getByRole("article").filter({ hasText: "Octalve CI Verified Applicant" });
   await reviewCard.getByLabel("Review justification").fill("Synthetic email verification checked for CI workflow.");
   await reviewCard.getByRole("button", { name: "Approve organization" }).click();
-  await expect(reviewCard.getByRole("status")).toContainText("Organization approved");
-  await expect(page.getByText("Payment: UNPAID", { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Pending applications" }).getByText("Octalve CI Verified Applicant")).toHaveCount(0);
+  const history = page.getByRole("region", { name: "Recently reviewed" });
+  await expect(history.getByText("Octalve CI Verified Applicant")).toBeVisible();
+  await expect(history.getByText("Payment: UNPAID", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Logout" }).click();
   await publicNavigation.getByRole("link", { name: "Home" }).click();
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();

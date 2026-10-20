@@ -13,3 +13,15 @@ export async function getPendingOrganizationReviews() {
     orderBy: { createdAt: "asc" },
   });
 }
+
+/** Immutable review history, with payment status read independently. */
+export async function getRecentOrganizationReviews() {
+  return getDb().organizationReview.findMany({
+    select: {
+      id: true, decision: true, reason: true, createdAt: true,
+      body: { select: { name: true, paymentStatus: true } }
+    },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+  });
+}

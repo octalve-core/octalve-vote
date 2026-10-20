@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 import { requireStaffRole } from "@/lib/auth/session";
 import { areApprovalsEnabled } from "@/lib/auth/config";
-import { getPendingOrganizationReviews } from "@/lib/admin/reviews";
+import { getPendingOrganizationReviews, getRecentOrganizationReviews } from "@/lib/admin/reviews";
 import { OrganizationReviewCard } from "@/components/sections/admin/organization-review-card";
 import { staffLogoutAction } from "@/app/actions/staff-auth";
 
@@ -12,7 +12,9 @@ export const metadata: Metadata = { title: "Platform administration" };
 export default async function AdminPage() {
   const account = await requireStaffRole("PLATFORM_ADMIN");
   const enabled = areApprovalsEnabled();
-  const applications = enabled ? await getPendingOrganizationReviews() : [];
+  const [applications, history] = enabled
+    ? await Promise.all([getPendingOrganizationReviews(), getRecentOrganizationReviews()])
+    : [[], []];
   return <main className="min-h-screen bg-slate-50 p-5 md:p-12">
     <div className="mx-auto max-w-5xl">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -36,6 +38,20 @@ export default async function AdminPage() {
           email: organization.email, emailVerified: Boolean(organization.emailVerifiedAt),
           paymentStatus: organization.paymentStatus, subscriptionType: organization.subscriptionType,
         }}/>)}
+      </section>}
+      {enabled && <section aria-label="Recently reviewed" className="mt-10 space-y-4">
+        <h2 className="text-xl font-extrabold">Recently reviewed</h2>
+        {history.length === 0 ? <p className="rounded-xl bg-white p-6 text-slate-500">No completed reviews yet.</p>
+          : <ul className="divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-sm">
+            {history.map(item => <li key={item.id} className="p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="font-bold">{item.body.name}</span>
+                <span className="rounded-lg bg-green-50 px-3 py-1 text-xs font-bold text-green-800">{item.decision}</span>
+              </div>
+              <p className="mt-2 text-sm text-slate-600">{item.reason}</p>
+              <p className="mt-2 text-xs text-slate-500">Payment: {item.body.paymentStatus}</p>
+            </li>)}
+          </ul>}
       </section>}
     </div>
   </main>;
