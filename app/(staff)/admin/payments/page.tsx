@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { staffLogoutAction } from "@/app/actions/staff-auth";
 import { requireStaffRole } from "@/lib/auth/session";
 import { getPendingPaymentClaims } from "@/lib/payments/claims";
 import { AdminPaymentReviewCard } from "@/components/sections/payments/admin-payment-review-card";
@@ -11,7 +12,8 @@ export default async function AdminPaymentsPage() {
   const pending = enabled ? await getPendingPaymentClaims() : [];
   return <main className="mx-auto max-w-5xl px-5 py-12">
     <Link href="/admin" className="text-sm font-semibold text-indigo-700 hover:underline">← Organization reviews</Link>
-    <h1 className="mt-6 text-3xl font-extrabold">Payment claims</h1>
+    <div className="mt-6 flex items-center justify-between gap-4"><h1 className="text-3xl font-extrabold">Payment claims</h1>
+      <form action={staffLogoutAction}><button className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-indigo-700">Logout</button></form></div>
     <p className="mt-4 rounded-xl bg-amber-50 p-5 text-sm leading-7 text-amber-900">
       Review recorded bank-transfer claims only. No independent settlement gateway or bank validation is connected, so no claim can be marked PAID here.
     </p>

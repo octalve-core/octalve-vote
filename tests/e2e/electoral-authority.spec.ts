@@ -126,7 +126,7 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await expect(page.getByText("Synthetic Voter One")).toBeVisible();
   await page.getByLabel("Select CSV file").setInputFiles({
     name: "test-voters.csv", mimeType: "text/csv",
-    buffer: Buffer.from('name,email,phone\\n"Voter, Two",synthetic.two@example.test,08000000000\\n', "utf8")
+    buffer: Buffer.from('name,email,phone\n"Voter, Two",synthetic.two@example.test,08000000000\n', "utf8")
   });
   await page.getByRole("button", { name: "Import draft voters" }).click();
   await expect(page.getByText("Voter, Two")).toBeVisible();
