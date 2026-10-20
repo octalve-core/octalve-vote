@@ -9,7 +9,7 @@ import { consumeAuthAttempt } from "@/lib/auth/throttle";
 import { isSignupEnabled, isStaffLoginEnabled } from "@/lib/auth/config";
 
 export type StaffAuthState = { error: string };
-export const initialAuthState: StaffAuthState = { error: "" };
+
 
 const loginSchema = z.object({
   email: z.email().max(254),

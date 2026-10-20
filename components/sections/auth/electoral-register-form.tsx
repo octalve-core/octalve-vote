@@ -1,13 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
-import { electoralRegisterAction, initialAuthState } from "@/app/actions/staff-auth";
+import { electoralRegisterAction } from "@/app/actions/staff-auth";
 
 const inputStyle = "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-green-600 disabled:bg-slate-100";
 const labelStyle = "mb-2 block text-sm font-semibold text-slate-700";
 
 export function ElectoralRegisterForm({ enabled }: { enabled: boolean }) {
-  const [state, action, pending] = useActionState(electoralRegisterAction, initialAuthState);
+  const [state, action, pending] = useActionState(electoralRegisterAction, { error: "" });
   return <form action={action} className="mt-8 grid gap-5 sm:grid-cols-2">
     <div className="sm:col-span-2"><label htmlFor="org-name" className={labelStyle}>Organization name</label><input id="org-name" name="organization" required minLength={2} maxLength={140} disabled={!enabled} className={inputStyle} /></div>
     <div><label htmlFor="contact-person" className={labelStyle}>Contact person</label><input id="contact-person" name="contactPerson" required minLength={2} maxLength={120} disabled={!enabled} className={inputStyle} /></div>

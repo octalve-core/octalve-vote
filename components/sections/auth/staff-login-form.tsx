@@ -2,10 +2,10 @@
 
 import { useActionState } from "react";
 import { LockKeyhole, Mail, LoaderCircle } from "lucide-react";
-import { staffLoginAction, initialAuthState } from "@/app/actions/staff-auth";
+import { staffLoginAction } from "@/app/actions/staff-auth";
 
 export function StaffLoginForm({ role, enabled }: { role: "electoral" | "admin"; enabled: boolean }) {
-  const [state, action, pending] = useActionState(staffLoginAction, initialAuthState);
+  const [state, action, pending] = useActionState(staffLoginAction, { error: "" });
   return <form action={action} className="mt-8 space-y-5">
     <input type="hidden" name="role" value={role} />
     <div>
