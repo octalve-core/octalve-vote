@@ -8,7 +8,8 @@ import { z } from "zod";
 import { getDb } from "@/lib/db/client";
 import { createStaffSession, revokeStaffSession } from "@/lib/auth/session";
 import { consumeAuthAttempt } from "@/lib/auth/throttle";
-import { isSignupEnabled, isStaffLoginEnabled } from "@/lib/auth/config";
+import { isSignupEnabled, isStaffLoginEnabled, isAdminMfaEnabled } from "@/lib/auth/config";
+import { decryptMfaSecret, verifyTotpCounter } from "@/lib/auth/totp";
 
 export type StaffAuthState = { error: string };
 
@@ -16,7 +17,8 @@ export type StaffAuthState = { error: string };
 const loginSchema = z.object({
   email: z.email().max(254),
   password: z.string().min(1).max(256),
-  role: z.enum(["electoral", "admin"])
+  role: z.enum(["electoral", "admin"]),
+  otp: z.string().optional()
 });
 
 const registerSchema = z.object({
@@ -32,15 +34,15 @@ const registerSchema = z.object({
 export async function staffLoginAction(_state: StaffAuthState, form: FormData): Promise<StaffAuthState> {
   if (!isStaffLoginEnabled()) return { error: "Staff sign-in is not enabled for this environment." };
   const input = loginSchema.safeParse({
-    email: form.get("email"), password: form.get("password"), role: form.get("role")
+    email: form.get("email"), password: form.get("password"), role: form.get("role"), otp: form.get("otp") ?? undefined
   });
   if (!input.success) return { error: "Enter a valid email address and password." };
-  // Platform-administrator MFA/provisioning is not available yet; fail closed
-  // even if staff sign-in is explicitly enabled for electoral preview testing.
-  if (input.data.role === "admin") return { error: "Platform administrator sign-in requires an approved MFA implementation." };
+  if (input.data.role === "admin" && !isAdminMfaEnabled()) {
+    return { error: "Platform administrator sign-in requires configured MFA." };
+  }
 
   const email = input.data.email.toLowerCase().trim();
-  const neededRole = "ELECTORAL_ADMIN" as const;
+  const neededRole = input.data.role === "admin" ? "PLATFORM_ADMIN" : "ELECTORAL_ADMIN";
   let destination: string | undefined;
 
   try {
@@ -75,11 +77,27 @@ export async function staffLoginAction(_state: StaffAuthState, form: FormData): 
     }) : null;
     if (org?.status === "SUSPENDED") return { error: "Invalid credentials or account unavailable." };
 
-    await db.staffAccount.update({
-      where: { id: staff.id },
-      data: { failedAttempts: 0, lockedUntil: null }
-    });
-    await createStaffSession(staff.id);
+    if (neededRole === "PLATFORM_ADMIN") {
+      if (!staff.mfaSecretEncrypted || !input.data.otp) {
+        return { error: "Invalid credentials or account unavailable." };
+      }
+      const counter = verifyTotpCounter(
+        decryptMfaSecret(staff.mfaSecretEncrypted), input.data.otp, staff.mfaLastCounter
+      );
+      if (counter === null) return { error: "Invalid credentials or account unavailable." };
+      // Atomic TOTP replay protection across all app instances. A counter can be used only once.
+      const update = await db.staffAccount.updateMany({
+        where: { id: staff.id, OR: [{ mfaLastCounter: null }, { mfaLastCounter: { lt: counter } }] },
+        data: { mfaLastCounter: counter, failedAttempts: 0, lockedUntil: null }
+      });
+      if (update.count !== 1) return { error: "Invalid credentials or account unavailable." };
+    } else {
+      await db.staffAccount.update({
+        where: { id: staff.id },
+        data: { failedAttempts: 0, lockedUntil: null }
+      });
+    }
+    await createStaffSession(staff.id, neededRole === "PLATFORM_ADMIN");
     await db.authAuditEvent.create({ data: { accountId: staff.id, action: "STAFF_LOGIN" } });
     destination = staff.role === "PLATFORM_ADMIN" ? "/admin" : "/electoral/dashboard";
   } catch {
