@@ -169,8 +169,8 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await page.getByRole("button", { name: "Sign in securely" }).click();
   await expect(page.getByRole("heading", { name: "Organization reviews" })).toBeVisible();
   await expect(page.getByText("Octalve CI Verified Applicant")).toBeVisible();
-  await expect(page.getByText("Email verified", { exact: true })).toBeVisible();
   const reviewCard = page.getByRole("article").filter({ hasText: "Octalve CI Verified Applicant" });
+  await expect(reviewCard.getByText("Email verified", { exact: true })).toBeVisible();
   await reviewCard.getByLabel("Review justification").fill("Synthetic email verification checked for CI workflow.");
   await reviewCard.getByRole("button", { name: "Approve organization" }).click();
   await expect(page.getByRole("region", { name: "Pending applications" }).getByText("Octalve CI Verified Applicant")).toHaveCount(0);
