@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, Clock, Plus, RefreshCcw, Users, Vote } from "lucide-react";
 import { StatCard } from "./stat-card";
+import { TurnoutSection } from "./turnout-section";
+import { RecentElectionsSection } from "./recent-elections-section";
 
 type ElectionSummary = {
   id: string; title: string; status: "DRAFT" | "ACTIVE" | "CLOSED";
@@ -22,9 +24,6 @@ export type DashboardOverviewProps = {
 export function DashboardOverview(props: DashboardOverviewProps) {
   const selected = props.elections.find(e => e.id === props.selectedId);
   const isApproved = props.accountStatus === "APPROVED" && props.paymentStatus === "PAID";
-  const turnoutPercent = props.voterCount > 0
-    ? Math.min(100, Math.round((props.submittedBallots / props.voterCount) * 100))
-    : 0;
 
   return <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     {!isApproved && <div role="status" className="mb-6 flex gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5">
@@ -60,30 +59,8 @@ export function DashboardOverview(props: DashboardOverviewProps) {
       <StatCard title="Total Voters" value={props.voterCount} icon={Users} tint="indigo" />
       <StatCard title="Votes Cast" value={props.submittedBallots} icon={Vote} tint="amber" />
     </section>
-    {selected && <section aria-label="Turnout progress" className="mb-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div><h2 className="text-base font-bold">Participation overview</h2><p className="mt-1 text-sm text-slate-500">Submitted ballots compared with eligible voters</p></div>
-        <span className="text-2xl font-extrabold text-green-700">{turnoutPercent}%</span>
-      </div>
-      <div role="progressbar" aria-label="Ballot participation" aria-valuemin={0} aria-valuemax={100} aria-valuenow={turnoutPercent}
-        className="mt-5 h-3 overflow-hidden rounded-full bg-green-100">
-        <div className="h-full rounded-full bg-gradient-to-r from-green-600 to-emerald-500 transition-all"
-          style={{ width: turnoutPercent + "%" }} />
-      </div>
-      <p className="mt-3 text-xs text-slate-500">Aggregate participation only. Individual vote selections remain unavailable.</p>
-    </section>}
-    {props.elections.length > 0 && <section aria-label="Recent elections" className="mb-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-bold">Recent elections</h2>
-        <Link href="/electoral/elections" className="text-sm font-semibold text-green-700 hover:underline">View all</Link>
-      </div>
-      <ul className="mt-5 divide-y divide-slate-100">
-        {props.elections.slice(0, 5).map(election => <li key={election.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
-          <span className="font-medium text-slate-800">{election.title}</span>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold capitalize text-slate-600">{election.status.toLowerCase()}</span>
-        </li>)}
-      </ul>
-    </section>}
+    {selected && <TurnoutSection eligible={props.voterCount} submitted={props.submittedBallots} />}
+    <RecentElectionsSection elections={props.elections} />
     <section className="rounded-2xl border border-slate-100 bg-white p-9 text-center shadow-sm">
       {props.elections.length === 0
         ? <><Vote className="mx-auto size-14 text-slate-300" /><h2 className="mt-4 text-xl font-bold">No Elections Yet</h2><p className="mt-2 text-slate-500">Your organization has no elections on record. Election creation is reserved for a later, tested batch.</p></>
