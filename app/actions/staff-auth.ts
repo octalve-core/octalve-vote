@@ -2,6 +2,8 @@
 
 import { compare, hash } from "bcryptjs";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE } from "@/lib/auth/config";
 import { z } from "zod";
 import { getDb } from "@/lib/db/client";
 import { createStaffSession, revokeStaffSession } from "@/lib/auth/session";
@@ -138,8 +140,9 @@ export async function staffLogoutAction(): Promise<void> {
   try {
     await revokeStaffSession();
   } catch {
-    // Fail closed: even if session revocation storage is unavailable, never report success.
-    redirect("/electoral/login");
+    // Drop the browser credential even if persistence is unavailable. The
+    // session record requires follow-up revocation when the database recovers.
+    (await cookies()).delete(SESSION_COOKIE);
   }
   redirect("/electoral/login");
 }
