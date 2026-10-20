@@ -1,17 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { LockKeyhole, Mail, LoaderCircle } from "lucide-react";
 import { staffLoginAction } from "@/app/actions/staff-auth";
 
 export function StaffLoginForm({ role, enabled }: { role: "electoral" | "admin"; enabled: boolean }) {
   const [state, action, pending] = useActionState(staffLoginAction, { error: "" });
+  // Retain only the email across failed server-action submissions. Never retain passwords.
+  const [email, setEmail] = useState("");
   return <form action={action} className="mt-8 space-y-5">
     <input type="hidden" name="role" value={role} />
     <div>
       <label htmlFor="staff-email" className="mb-2 block text-sm font-semibold text-slate-700">Email address</label>
       <div className="relative"><Mail className="pointer-events-none absolute left-4 top-3.5 size-5 text-slate-400" />
-        <input id="staff-email" type="email" name="email" required autoComplete="username" placeholder="you@organization.org" disabled={!enabled} className="w-full rounded-xl border border-slate-200 bg-white px-12 py-3 outline-none focus:border-emerald-600 disabled:bg-slate-100" />
+        <input id="staff-email" type="email" name="email" required autoComplete="username" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@organization.org" disabled={!enabled} className="w-full rounded-xl border border-slate-200 bg-white px-12 py-3 outline-none focus:border-emerald-600 disabled:bg-slate-100" />
       </div>
     </div>
     <div>

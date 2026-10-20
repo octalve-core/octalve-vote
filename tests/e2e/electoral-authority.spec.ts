@@ -70,6 +70,7 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await page.getByLabel("Password", { exact: true }).fill("invalid-" + passphrase);
   await page.getByRole("button", { name: "Sign in securely" }).click();
   await expect(page.locator("p[role=\"alert\"]")).toContainText("Invalid credentials");
+  await expect(page.getByLabel("Email address")).toHaveValue(firstEmail);
   await page.getByLabel("Password", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "Sign in securely" }).click();
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
