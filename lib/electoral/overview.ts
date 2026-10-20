@@ -6,27 +6,31 @@ import { getDb } from "@/lib/db/client";
 // Ballot.voterId or Vote rows to dashboard client components.
 export async function getElectoralOverview(bodyId: string, requestedElection?: string) {
   const db = getDb();
-  const elections = await db.election.findMany({
-    where: { electoralBodyId: bodyId },
-    select: { id: true, title: true, status: true, startAt: true, endAt: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-    take: 100
-  });
+  const [elections, totalElections, activeElections] = await Promise.all([
+    db.election.findMany({
+      where: { electoralBodyId: bodyId },
+      select: { id: true, title: true, status: true, startAt: true, endAt: true, createdAt: true },
+      orderBy: { createdAt: "desc" },
+      take: 100
+    }),
+    db.election.count({ where: { electoralBodyId: bodyId } }),
+    db.election.count({ where: { electoralBodyId: bodyId, status: "ACTIVE" } })
+  ]);
 
   const selected = elections.find(e => e.id === requestedElection) ?? elections[0] ?? null;
   const [voterCount, submittedBallots, inProgressBallots] = selected
     ? await Promise.all([
         db.voter.count({ where: { electoralBodyId: bodyId, electionId: selected.id } }),
-        db.ballot.count({ where: { electionId: selected.id, submittedAt: { not: null } } }),
-        db.ballot.count({ where: { electionId: selected.id, submittedAt: null } })
+        db.ballot.count({ where: { electionId: selected.id, election: { electoralBodyId: bodyId }, submittedAt: { not: null } } }),
+        db.ballot.count({ where: { electionId: selected.id, election: { electoralBodyId: bodyId }, submittedAt: null } })
       ])
     : [0, 0, 0];
 
   return {
     elections,
     selected,
-    totalElections: elections.length,
-    activeElections: elections.filter(e => e.status === "ACTIVE").length,
+    totalElections,
+    activeElections,
     voterCount,
     submittedBallots,
     inProgressBallots

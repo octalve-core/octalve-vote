@@ -39,6 +39,14 @@ export async function createElectionDraftAction(
     await getDb().$transaction(async (tx) => {
       // Re-evaluate privileges inside the same transaction as creation:
       // a browser gate or previous session snapshot cannot authorize writes.
+      const staff = await tx.staffAccount.findUnique({
+        where: { id: account.id },
+        select: { role: true, electoralBodyId: true, isDisabled: true }
+      });
+      if (!staff || staff.role !== "ELECTORAL_ADMIN" || staff.isDisabled ||
+          staff.electoralBodyId !== account.electoralBodyId) {
+        throw new Error("staff-not-permitted");
+      }
       const body = await tx.electoralBody.findUnique({
         where: { id: account.electoralBodyId! },
         select: { status: true, paymentStatus: true }

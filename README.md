@@ -53,3 +53,7 @@ The single public-preview Playwright recording begins at the homepage and naviga
 - `tests/e2e`: continuous browser-only UI walkthrough
 
 See `docs/BATCH_02.md` for implemented features, verified limitations and next security gates. **Real ballot casting remains disabled.**
+
+## Batch 4 (draft PR)
+
+See [docs/BATCH_04.md](docs/BATCH_04.md) for the fail-closed, approved-body-only draft election workflow. It is **disabled by default**, as are real voting, candidate nomination, publishing and results. `DRAFT_ELECTION_CAPACITY` is an explicit pilot limit, not a subscription entitlement.
