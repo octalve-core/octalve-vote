@@ -1,7 +1,7 @@
 name: Octalve Vote Electoral Integration
 on:
   pull_request:
-    branches: [main]
+    branches: [main, phase/02-electoral-auth-dashboard]
   workflow_dispatch:
 
 permissions:
