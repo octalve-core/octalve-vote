@@ -41,5 +41,6 @@ export async function sendVerificationEmail(to: string, token: string): Promise<
     text: "Confirm your organization's email address by opening the link below, then selecting Verify.\n\n" +
       verificationUrl.toString() +
       "\n\nThis link expires in 20 minutes and can be used once. If you did not request this, ignore it.",
+    html: `<p>Confirm your organization email for Octalve Vote.</p><p><a href="${verificationUrl.toString()}">Verify organization email</a></p><p>This link expires in 20 minutes and can be used once. If you did not request this, ignore it.</p>`
   });
 }

@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, LayoutDashboard, Vote, Users, HelpCircle, LogOut } from "lucide-react";
+import { Building2, LayoutDashboard, Vote, Users, HelpCircle, LogOut, MailCheck, CreditCard } from "lucide-react";
 import { staffLogoutAction } from "@/app/actions/staff-auth";
 
 const items = [
   { href: "/electoral/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/electoral/elections", label: "Elections", icon: Vote },
   { href: "/electoral/voters", label: "Voters", icon: Users },
+  { href: "/electoral/email", label: "Email", icon: MailCheck },
+  { href: "/electoral/payment", label: "Payment", icon: CreditCard },
   { href: "/electoral/support", label: "Support", icon: HelpCircle }
 ] as const;
 

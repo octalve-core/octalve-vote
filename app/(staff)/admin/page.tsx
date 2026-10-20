@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { requireStaffRole } from "@/lib/auth/session";
 import { areApprovalsEnabled } from "@/lib/auth/config";
 import { getPendingOrganizationReviews, getRecentOrganizationReviews } from "@/lib/admin/reviews";
@@ -24,6 +25,7 @@ export default async function AdminPage() {
         </div>
         <form action={staffLogoutAction}><button className="rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold text-indigo-700">Logout</button></form>
       </div>
+      <Link href="/admin/payments" className="mt-7 inline-block rounded-xl border border-indigo-200 bg-white px-5 py-3 text-sm font-semibold text-indigo-700 hover:bg-indigo-50">Review payment claims</Link>
       <p className="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-5 text-sm leading-7 text-indigo-900">
         Every approval requires an MFA-verified administrator session, a verified organization email and an auditable reason.
         Payments are never approved or marked paid here.
