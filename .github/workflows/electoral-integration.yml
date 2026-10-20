@@ -1,4 +1,4 @@
-name: Octalve Vote Electoral + Admin Integration
+name: Octalve Vote Email + Payment + Electoral Integration
 on:
   pull_request:
     branches: [main, phase/02-electoral-auth-dashboard]
@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
       postgres:
         image: postgres:18
         env:
@@ -28,6 +33,14 @@ jobs:
       AUTH_THROTTLE_SECRET: ci-integration-secret-not-for-deployment-2026
       ENABLE_STAFF_LOGIN: 'true'
       ENABLE_ELECTORAL_SIGNUP: 'true'
+      ENABLE_EMAIL_VERIFICATION: 'true'
+      ENABLE_CI_MAILBOX_LINK: 'true'
+      SMTP_HOST: '127.0.0.1'
+      SMTP_PORT: '1025'
+      SMTP_FROM: 'Octalve Vote CI <no-reply@example.test>'
+      APP_ORIGIN: 'http://127.0.0.1:3000'
+      ENABLE_PAYMENT_REVIEW: 'true'
+      ENABLE_VOTER_REGISTER: 'true'
       CI_ELECTORAL_INTEGRATION: 'true'
       ENABLE_DRAFT_ELECTIONS: 'true'
       ENABLE_ADMIN_MFA: 'true'
@@ -63,7 +76,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: batch-5-electoral-admin-browser-evidence
+          name: batch-6-browser-evidence
           path: |
             test-results/
             playwright-report/

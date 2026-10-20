@@ -39,6 +39,7 @@ try {
         contactPerson: "CI Synthetic Administrator",
         email: process.env.CI_APPROVED_ELECTORAL_EMAIL!,
         status: "APPROVED",
+        emailVerifiedAt: new Date(),
         paymentStatus: "PAID",
         subscriptionType: "ORGANIZATIONAL"
       }
@@ -67,6 +68,24 @@ try {
         emailVerifiedAt: new Date(),
         status: "PENDING",
         paymentStatus: "UNPAID"
+      }
+    });
+    const claimant = await tx.electoralBody.create({
+      data: {
+        name: "Octalve CI Unpaid Claimant",
+        contactPerson: "CI Payment Officer",
+        email: "ci-unpaid-claimant@example.test",
+        emailVerifiedAt: new Date(),
+        status: "PENDING",
+        paymentStatus: "UNPAID"
+      }
+    });
+    await tx.staffAccount.create({
+      data: {
+        email: "ci-unpaid-claimant@example.test",
+        passwordHash: await hash("CI-Unpaid-Claimant-NonProd-2026!", 12),
+        role: "ELECTORAL_ADMIN",
+        electoralBodyId: claimant.id
       }
     });
     const foreign = await tx.electoralBody.create({

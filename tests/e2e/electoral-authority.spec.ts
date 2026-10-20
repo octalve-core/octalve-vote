@@ -116,8 +116,43 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await page.getByLabel("Manifesto (optional)").fill("Transparent and accountable governance.");
   await page.getByRole("button", { name: "Add candidate" }).click();
   await expect(page.getByText("Octalve Synthetic Candidate")).toBeVisible();
+  await approvedNav.getByRole("link", { name: "Voters" }).click();
+  await expect(page.getByRole("heading", { name: "Voter registers" })).toBeVisible();
+  await page.getByRole("link", { name: draftTitle }).click();
+  await expect(page.getByRole("heading", { name: draftTitle })).toBeVisible();
+  await page.getByLabel("Full name").fill("Synthetic Voter One");
+  await page.getByLabel("Email address").fill("synthetic.one@example.test");
+  await page.getByRole("button", { name: "Add voter to draft" }).click();
+  await expect(page.getByText("Synthetic Voter One")).toBeVisible();
+  await page.getByLabel("Select CSV file").setInputFiles({
+    name: "test-voters.csv", mimeType: "text/csv",
+    buffer: Buffer.from('name,email,phone\\n"Voter, Two",synthetic.two@example.test,08000000000\\n', "utf8")
+  });
+  await page.getByRole("button", { name: "Import draft voters" }).click();
+  await expect(page.getByText("Voter, Two")).toBeVisible();
+  await approvedNav.getByRole("link", { name: "Elections" }).click();
+
   await page.getByRole("link", { name: "Back to elections" }).click();
   await expect(page.getByRole("heading", { name: "Elections", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Logout" }).click();
+
+  // A synthetic verified but UNPAID organization submits an unconfirmed
+  // bank reference. It must not change payment authority or unlock elections.
+  await page.getByLabel("Email address").fill("ci-unpaid-claimant@example.test");
+  await page.getByLabel("Password", { exact: true }).fill("CI-Unpaid-Claimant-NonProd-2026!");
+  await page.getByRole("button", { name: "Sign in securely" }).click();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
+  const claimantNav = page.getByRole("navigation", { name: "Electoral dashboard navigation" });
+  await claimantNav.getByRole("link", { name: "Payment" }).click();
+  await expect(page.getByText("Organization payment status:")).toBeVisible();
+  await expect(page.getByText("UNPAID", { exact: true })).toBeVisible();
+  const claimRef = "CI-BANK-" + identifier.toUpperCase();
+  await page.getByLabel("Transfer reference").fill(claimRef);
+  await page.getByLabel("Reported amount (NGN)").fill("15000.00");
+  await page.getByLabel("Additional information (optional)").fill("Synthetic test bank claim without settlement.");
+  await page.getByRole("button", { name: "Submit unconfirmed claim" }).click();
+  await expect(page.getByText(claimRef)).toBeVisible();
+  await expect(page.getByText("UNPAID", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Logout" }).click();
 
   await publicNavigation.getByRole("link", { name: "Home" }).click();
@@ -143,6 +178,14 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   const history = page.getByRole("region", { name: "Recently reviewed" });
   await expect(history.getByText("Octalve CI Verified Applicant")).toBeVisible();
   await expect(history.getByText("Payment: UNPAID", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Review payment claims" }).click();
+  await expect(page.getByRole("heading", { name: "Payment claims" })).toBeVisible();
+  const paymentCard = page.getByRole("article").filter({ hasText: claimRef });
+  await expect(paymentCard).toBeVisible();
+  await paymentCard.getByLabel("Review outcome").selectOption("NEEDS_EVIDENCE");
+  await paymentCard.getByLabel("Reason (10+ characters)").fill("No independent settlement confirmation has been received.");
+  await paymentCard.getByRole("button", { name: "Record review outcome" }).click();
+  await expect(page.getByRole("region", { name: "Pending payment claims" }).getByText(claimRef)).toHaveCount(0);
   await page.getByRole("button", { name: "Logout" }).click();
   await publicNavigation.getByRole("link", { name: "Home" }).click();
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
