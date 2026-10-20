@@ -1,4 +1,9 @@
 import type { Metadata } from "next";
-import { RoleEntrySection } from "@/components/sections/role-entry/role-entry-section";
+import { ElectoralAuthSection } from "@/components/sections/auth/electoral-auth-section";
+import { isSignupEnabled, isStaffLoginEnabled } from "@/lib/auth/config";
+
 export const metadata: Metadata = { title: "Electoral body portal" };
-export default function Page() { return <RoleEntrySection role="electoral" />; }
+
+export default function ElectoralLoginPage() {
+  return <ElectoralAuthSection loginEnabled={isStaffLoginEnabled()} signupEnabled={isSignupEnabled()} />;
+}
