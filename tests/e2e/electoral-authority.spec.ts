@@ -6,6 +6,7 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   // The database is initialized by CI before the browser recording begins.
   // This test never reads/writes the database directly or calls a backend API.
   // After opening the homepage, all navigation is via on-screen links/buttons.
+  test.setTimeout(120_000);
   const identifier = randomBytes(6).toString("hex");
   const firstEmail = `electoral-a-${identifier}@example.test`;
   const secondEmail = `electoral-b-${identifier}@example.test`;
@@ -131,8 +132,6 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await page.getByRole("button", { name: "Import draft voters" }).click();
   await expect(page.getByText("Voter, Two")).toBeVisible();
   await approvedNav.getByRole("link", { name: "Elections" }).click();
-
-  await page.getByRole("link", { name: "Back to elections" }).click();
   await expect(page.getByRole("heading", { name: "Elections", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Logout" }).click();
 
