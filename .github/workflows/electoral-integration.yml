@@ -1,4 +1,4 @@
-name: Octalve Vote Electoral Integration
+name: Octalve Vote Electoral + Admin Integration
 on:
   pull_request:
     branches: [main, phase/02-electoral-auth-dashboard]
@@ -30,6 +30,13 @@ jobs:
       ENABLE_ELECTORAL_SIGNUP: 'true'
       CI_ELECTORAL_INTEGRATION: 'true'
       ENABLE_DRAFT_ELECTIONS: 'true'
+      ENABLE_ADMIN_MFA: 'true'
+      ENABLE_ORGANIZATION_APPROVALS: 'true'
+      ENABLE_ELECTION_CONFIGURATION: 'true'
+      MFA_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      CI_ADMIN_EMAIL: ci-platform-admin@example.test
+      CI_ADMIN_PASSWORD: CI-Platform-Admin-NonProd-2026!
+      CI_ADMIN_MFA_SECRET: JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP
       DRAFT_ELECTION_CAPACITY: '3'
       CI_APPROVED_ELECTORAL_EMAIL: octalve-approved-fixture@example.test
       CI_APPROVED_ELECTORAL_PASSWORD: CI-Approved-Demo-2026-NonProd
@@ -56,7 +63,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: batch-3-electoral-browser-evidence
+          name: batch-5-electoral-admin-browser-evidence
           path: |
             test-results/
             playwright-report/

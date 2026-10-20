@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { randomBytes } from "node:crypto";
+import { totpCode } from "../../lib/auth/totp";
 
 test("continuous browser journey: two pending electoral bodies, logout and login", async ({ page }) => {
   // The database is initialized by CI before the browser recording begins.
@@ -107,6 +108,14 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await page.getByRole("link", { name: draftTitle }).click();
   await expect(page.getByRole("heading", { name: draftTitle })).toBeVisible();
   await expect(page.getByText("Synthetic test draft, not a real election.")).toBeVisible();
+  await page.getByLabel("Position title").fill("President");
+  await page.getByLabel("Description (optional)").fill("Chief representative");
+  await page.getByRole("button", { name: "Add position" }).click();
+  await expect(page.getByRole("heading", { name: "President" })).toBeVisible();
+  await page.getByLabel("Candidate name").fill("Octalve Synthetic Candidate");
+  await page.getByLabel("Manifesto (optional)").fill("Transparent and accountable governance.");
+  await page.getByRole("button", { name: "Add candidate" }).click();
+  await expect(page.getByText("Octalve Synthetic Candidate")).toBeVisible();
   await page.getByRole("link", { name: "Back to elections" }).click();
   await expect(page.getByRole("heading", { name: "Elections", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Logout" }).click();
@@ -114,7 +123,25 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await publicNavigation.getByRole("link", { name: "Home" }).click();
   await page.getByRole("link", { name: "Platform admin", exact: true }).click();
   await expect(page.getByRole("heading", { name: /platform administrator/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /sign in securely/i })).toBeDisabled();
+  const adminEmail = process.env.CI_ADMIN_EMAIL;
+  const adminPassword = process.env.CI_ADMIN_PASSWORD;
+  const adminSecret = process.env.CI_ADMIN_MFA_SECRET;
+  if (!adminEmail || !adminPassword || !adminSecret) throw new Error("Missing isolated admin test credentials");
+  await page.getByLabel("Email address").fill(adminEmail);
+  await page.getByLabel("Password", { exact: true }).fill(adminPassword);
+  await page.getByLabel("Authenticator code (6 digits)").fill(
+    totpCode(adminSecret, Math.floor(Date.now() / 30_000))
+  );
+  await page.getByRole("button", { name: "Sign in securely" }).click();
+  await expect(page.getByRole("heading", { name: "Organization reviews" })).toBeVisible();
+  await expect(page.getByText("Octalve CI Verified Applicant")).toBeVisible();
+  await expect(page.getByText("Email verified", { exact: true })).toBeVisible();
+  const reviewCard = page.getByRole("article").filter({ hasText: "Octalve CI Verified Applicant" });
+  await reviewCard.getByLabel("Review justification").fill("Synthetic email verification checked for CI workflow.");
+  await reviewCard.getByRole("button", { name: "Approve organization" }).click();
+  await expect(reviewCard.getByRole("status")).toContainText("Organization approved");
+  await expect(page.getByText("Payment: UNPAID", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Logout" }).click();
   await publicNavigation.getByRole("link", { name: "Home" }).click();
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
 });
