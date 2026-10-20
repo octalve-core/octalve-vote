@@ -11,9 +11,9 @@
     "test:browser": "playwright test"
   },
   "dependencies": {
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "next": "16.4.1",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
     "lucide-react": "^0.563.0"
   },
   "devDependencies": {
@@ -23,7 +23,7 @@
     "@types/react-dom": "^19",
     "@playwright/test": "^1.56.0",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.4.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
