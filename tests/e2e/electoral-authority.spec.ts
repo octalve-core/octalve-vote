@@ -12,6 +12,18 @@ test("continuous browser journey: two pending electoral bodies, logout and login
 
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
+  const publicNavigation = page.getByRole("navigation", { name: "Primary navigation" });
+  await publicNavigation.getByRole("link", { name: "About Us" }).click();
+  await expect(page.getByRole("heading", { name: /about octalve vote/i })).toBeVisible();
+  await publicNavigation.getByRole("link", { name: "Pricing" }).click();
+  await expect(page.getByRole("heading", { name: /simple, transparent pricing/i })).toBeVisible();
+  await publicNavigation.getByRole("link", { name: "Contact" }).click();
+  await expect(page.getByRole("heading", { name: /contact channel being configured/i })).toBeVisible();
+  await page.getByRole("link", { name: /return home/i }).click();
+
+  await page.getByRole("link", { name: /voter entrance/i }).last().click();
+  await expect(page.getByRole("heading", { name: /your vote, your voice/i })).toBeVisible();
+  await page.getByRole("link", { name: /back to home/i }).click();
 
   await page.getByRole("link", { name: "Electoral body portal" }).first().click();
   await expect(page.getByRole("heading", { name: /electoral body portal/i })).toBeVisible();
@@ -55,6 +67,9 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await page.getByRole("button", { name: "Logout" }).click();
   await expect(page.getByRole("heading", { name: /electoral body portal/i })).toBeVisible();
   await page.getByLabel("Email address").fill(firstEmail);
+  await page.getByLabel("Password", { exact: true }).fill("invalid-" + passphrase);
+  await page.getByRole("button", { name: "Sign in securely" }).click();
+  await expect(page.getByRole("alert")).toContainText("Invalid credentials");
   await page.getByLabel("Password", { exact: true }).fill(passphrase);
   await page.getByRole("button", { name: "Sign in securely" }).click();
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
@@ -62,7 +77,10 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await expect(page.getByText(secondName)).toHaveCount(0);
 
   await page.getByRole("button", { name: "Logout" }).click();
-  await page.getByRole("navigation", { name: "Primary navigation" })
-    .getByRole("link", { name: "Home" }).click();
+  await publicNavigation.getByRole("link", { name: "Home" }).click();
+  await page.getByRole("link", { name: "Platform admin", exact: true }).click();
+  await expect(page.getByRole("heading", { name: /platform administrator/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /sign in securely/i })).toBeDisabled();
+  await publicNavigation.getByRole("link", { name: "Home" }).click();
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
 });
