@@ -30,3 +30,9 @@ Batch 4 preserves the original **green/emerald** electoral design language and t
 ## Release decision
 
 **Review-only.** Must not merge to production or market as a complete voting system. Needed next: organization email verification and staff MFA, audited admin approvals, approved-body draft creation tests, fully authorized candidate/position editing, voter OTP redesign and privacy-safe atomic ballots.
+
+## Additional isolated positive acceptance case
+
+The CI electoral workflow creates a **synthetic approved/paid** staff organization and a foreign organization's draft *before* the recording, guarded to a local disposable `vote_integration_ci` PostgreSQL instance. During recording, Playwright signs in by clicking the portal, creates a draft with only UI controls, opens its details, and verifies the foreign organization's draft title is absent in its visible list. This setup is not a platform admin approval feature, payment confirmation or proof of exhaustive IDOR resistance.
+
+The CI-only approved fixture password is synthetic and is unusable after the temporary container is destroyed. Never reuse the credentials in another environment. The browser's account actions make no direct database/API calls.

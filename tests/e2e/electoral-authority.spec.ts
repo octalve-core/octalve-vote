@@ -80,6 +80,37 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await expect(page.getByText(secondName)).toHaveCount(0);
 
   await page.getByRole("button", { name: "Logout" }).click();
+
+  // Approved test identity is created by the ephemeral CI setup before this
+  // recording, not through an API or database access by this browser journey.
+  const approvedEmail = process.env.CI_APPROVED_ELECTORAL_EMAIL;
+  const approvedPassword = process.env.CI_APPROVED_ELECTORAL_PASSWORD;
+  if (!approvedEmail || !approvedPassword) throw new Error("Missing ephemeral approved test identity");
+
+  await page.getByLabel("Email address").fill(approvedEmail);
+  await page.getByLabel("Password", { exact: true }).fill(approvedPassword);
+  await page.getByRole("button", { name: "Sign in securely" }).click();
+  await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Octalve CI Approved Organization" })).toBeVisible();
+  const approvedNav = page.getByRole("navigation", { name: "Electoral dashboard navigation" });
+  await approvedNav.getByRole("link", { name: "Elections" }).click();
+  await expect(page.getByRole("heading", { name: "Elections", exact: true })).toBeVisible();
+  await expect(page.getByText("Other Organization Confidential Test Draft")).toHaveCount(0);
+  await page.getByRole("link", { name: "Create draft election" }).click();
+  await expect(page.getByRole("heading", { name: "Create an election" })).toBeVisible();
+
+  const draftTitle = "CI Approved Draft " + identifier;
+  await page.getByLabel("Election title").fill(draftTitle);
+  await page.getByLabel("Description (optional)").fill("Synthetic test draft, not a real election.");
+  await page.getByRole("button", { name: "Create draft election" }).click();
+  await expect(page.getByRole("heading", { name: "Elections", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: draftTitle }).click();
+  await expect(page.getByRole("heading", { name: draftTitle })).toBeVisible();
+  await expect(page.getByText("Synthetic test draft, not a real election.")).toBeVisible();
+  await page.getByRole("link", { name: "Back to elections" }).click();
+  await expect(page.getByRole("heading", { name: "Elections", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Logout" }).click();
+
   await publicNavigation.getByRole("link", { name: "Home" }).click();
   await page.getByRole("link", { name: "Platform admin", exact: true }).click();
   await expect(page.getByRole("heading", { name: /platform administrator/i })).toBeVisible();

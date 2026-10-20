@@ -29,6 +29,10 @@ jobs:
       ENABLE_STAFF_LOGIN: 'true'
       ENABLE_ELECTORAL_SIGNUP: 'true'
       CI_ELECTORAL_INTEGRATION: 'true'
+      ENABLE_DRAFT_ELECTIONS: 'true'
+      DRAFT_ELECTION_CAPACITY: '3'
+      CI_APPROVED_ELECTORAL_EMAIL: octalve-approved-fixture@example.test
+      CI_APPROVED_ELECTORAL_PASSWORD: CI-Approved-Demo-2026-NonProd
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,6 +42,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Apply reviewed initial migration to disposable database
         run: npm run db:deploy
+      - name: Prepare pre-recording approved synthetic organization fixture
+        run: node --experimental-strip-types scripts/seed-ci-fixtures.ts
       - name: Typecheck
         run: npm run typecheck
       - name: Production build for test environment
