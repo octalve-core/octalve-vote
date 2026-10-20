@@ -14,7 +14,7 @@ const claim = z.object({
 });
 function toKobo(raw: string): bigint {
   const [naira, decimals = ""] = raw.split(".");
-  return BigInt(naira) * 100n + BigInt((decimals + "00").slice(0, 2));
+  return BigInt(naira) * BigInt(100) + BigInt((decimals + "00").slice(0, 2));
 }
 
 /** Records an unconfirmed claim. Never settles or activates a subscription. */
