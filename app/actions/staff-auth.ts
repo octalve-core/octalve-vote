@@ -162,5 +162,5 @@ export async function staffLogoutAction(): Promise<void> {
     // session record requires follow-up revocation when the database recovers.
     (await cookies()).delete(SESSION_COOKIE);
   }
-  redirect("/electoral/login");
+  redirect("/auth");
 }

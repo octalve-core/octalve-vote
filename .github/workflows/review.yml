@@ -32,7 +32,7 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Continuous browser-only review walkthrough
-        run: npx playwright test tests/e2e/public-preview.spec.ts
+        run: npx playwright test tests/e2e/public-preview.spec.ts tests/e2e/public-preview-mobile.spec.ts
       - name: Upload browser video and trace
         if: always()
         uses: actions/upload-artifact@v4
