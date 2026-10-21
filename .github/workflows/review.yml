@@ -1,0 +1,44 @@
+name: Octalve Vote Review
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Generate inspectable baseline SQL (offline; never connects to a database)
+        run: |
+          npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script -o /tmp/octalve-vote-baseline.sql
+          test -s /tmp/octalve-vote-baseline.sql
+          echo OCTALVE_BASELINE_SQL_BEGIN
+          cat /tmp/octalve-vote-baseline.sql
+          echo OCTALVE_BASELINE_SQL_END
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Continuous browser-only review walkthrough
+        run: npx playwright test tests/e2e/public-preview.spec.ts tests/e2e/public-preview-mobile.spec.ts
+      - name: Upload browser video and trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: octalve-vote-browser-review
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7

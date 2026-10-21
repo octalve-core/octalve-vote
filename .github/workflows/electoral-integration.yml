@@ -1,0 +1,83 @@
+name: Octalve Vote Email + Payment + Electoral Integration
+on:
+  pull_request:
+    branches: [main, phase/02-electoral-auth-dashboard]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  electoral-browser-db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: vote_ci
+          POSTGRES_PASSWORD: ephemeral_ci_password
+          POSTGRES_DB: vote_integration_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vote_ci -d vote_integration_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://vote_ci:ephemeral_ci_password@127.0.0.1:5432/vote_integration_ci?schema=public
+      AUTH_THROTTLE_SECRET: ci-integration-secret-not-for-deployment-2026
+      ENABLE_STAFF_LOGIN: 'true'
+      ENABLE_ELECTORAL_SIGNUP: 'true'
+      ENABLE_EMAIL_VERIFICATION: 'true'
+      ENABLE_CI_MAILBOX_LINK: 'true'
+      SMTP_HOST: '127.0.0.1'
+      SMTP_PORT: '1025'
+      SMTP_FROM: 'Octalve Vote CI <no-reply@example.test>'
+      APP_ORIGIN: 'http://127.0.0.1:3000'
+      ENABLE_PAYMENT_REVIEW: 'true'
+      ENABLE_VOTER_REGISTER: 'true'
+      CI_ELECTORAL_INTEGRATION: 'true'
+      ENABLE_DRAFT_ELECTIONS: 'true'
+      ENABLE_ADMIN_MFA: 'true'
+      ENABLE_ORGANIZATION_APPROVALS: 'true'
+      ENABLE_ELECTION_CONFIGURATION: 'true'
+      MFA_ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      CI_ADMIN_EMAIL: ci-platform-admin@example.test
+      CI_ADMIN_PASSWORD: CI-Platform-Admin-NonProd-2026!
+      CI_ADMIN_MFA_SECRET: JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP
+      DRAFT_ELECTION_CAPACITY: '3'
+      CI_APPROVED_ELECTORAL_EMAIL: octalve-approved-fixture@example.test
+      CI_APPROVED_ELECTORAL_PASSWORD: CI-Approved-Demo-2026-NonProd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install exact app dependencies
+        run: npm install --no-audit --no-fund
+      - name: Apply reviewed initial migration to disposable database
+        run: npm run db:deploy
+      - name: Prepare pre-recording approved synthetic organization fixture
+        run: node --experimental-strip-types scripts/seed-ci-fixtures.ts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build for test environment
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser-only electoral registration and authorization journey
+        run: npx playwright test tests/e2e/electoral-authority.spec.ts tests/e2e/email-verification.spec.ts
+      - name: Upload continuous recording and trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-6-browser-evidence
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
