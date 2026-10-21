@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
-import { RoleEntrySection } from "@/components/sections/role-entry/role-entry-section";
-export const metadata: Metadata = { title: "Voter portal" };
-export default function Page() { return <RoleEntrySection role="voter" />; }
+import { redirect } from "next/navigation";
+
+/** Compatibility URL only: every role now shares /auth with separate server authority. */
+export default function LegacyLoginEntry() { redirect("/auth?role=voter"); }

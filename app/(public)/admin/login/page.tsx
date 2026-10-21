@@ -1,19 +1,4 @@
-import type { Metadata } from "next";
-import { ShieldCheck } from "lucide-react";
-import { StaffLoginForm } from "@/components/sections/auth/staff-login-form";
-import { isAdminMfaEnabled } from "@/lib/auth/config";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Platform administrator sign-in" };
-
-export default function PlatformLoginPage() {
-  return <main className="min-h-[70vh] bg-gradient-to-br from-slate-50 via-indigo-50/40 to-purple-50/30 px-5 py-16">
-    <div className="mx-auto max-w-lg rounded-3xl border border-slate-100 bg-white p-8 shadow-xl shadow-indigo-950/5 md:p-10">
-      <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-indigo-600 text-white"><ShieldCheck className="size-7" /></span>
-      <h1 className="mt-5 text-center text-3xl font-extrabold">Platform Administrator</h1>
-      <p className="mt-3 text-center text-sm leading-6 text-slate-600">Authorized administrator accounts only. Public registration does not create platform administrators.</p>
-      <StaffLoginForm role="admin" enabled={isAdminMfaEnabled()} />
-      <p className="mt-6 text-center text-xs text-amber-800">Admin access requires a provisioned account, an authenticator code and an enabled review environment. No public admin registration.</p>
-    </div>
-  </main>;
-}
+/** Compatibility URL only: every role now shares /auth with separate server authority. */
+export default function LegacyLoginEntry() { redirect("/auth?role=admin"); }
