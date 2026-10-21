@@ -84,5 +84,5 @@ export async function confirmOrganizationEmailVerification(
     return { error: "This link has expired or was already used. Request a new one.", success: "" };
   }
   revalidatePath("/electoral/email");
-  redirect("/electoral/login?email_verified=1");
+  redirect("/auth?role=electoral&email_verified=1");
 }

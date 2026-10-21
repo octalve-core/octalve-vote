@@ -57,7 +57,7 @@ export async function readStaffSession() {
 export async function requireStaffRole(role: StaffRole) {
   const account = await readStaffSession();
   if (!account || account.role !== role || (role === "ELECTORAL_ADMIN" && !account.electoralBodyId)) {
-    redirect(role === "PLATFORM_ADMIN" ? "/admin/login" : "/electoral/login");
+    redirect(role === "PLATFORM_ADMIN" ? "/auth?role=admin" : "/auth?role=electoral");
   }
   return account;
 }

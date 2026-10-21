@@ -3,7 +3,7 @@ import { Brand } from "./brand";
 
 export function SiteFooter() {
   const publicLinks = [{ href: "/", label: "Home" }, { href: "/about", label: "About" }, { href: "/pricing", label: "Pricing" }, { href: "/contact", label: "Contact" }];
-  const roleLinks = [{ href: "/voter/login", label: "Voter" }, { href: "/electoral/login", label: "Electoral body" }, { href: "/admin/login", label: "Platform administrator" }];
+  const roleLinks = [{ href: "/auth?role=voter", label: "Voter" }, { href: "/auth?role=electoral", label: "Electoral body" }, { href: "/auth?role=admin", label: "Platform administrator" }];
 
   return <footer className="border-t border-slate-100 bg-slate-50">
     <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-3 md:px-8">
