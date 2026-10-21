@@ -6,6 +6,7 @@ test("single browser-only email verification through the isolated SMTP inbox", a
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
   await page.getByRole("link", { name: "Electoral body portal" }).first().click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("tab", { name: "Register" }).click();
   await page.getByLabel("Organization name").fill("Email Verification Test Org " + suffix);
   await page.getByLabel("Contact person").fill("Synthetic Email Officer");
@@ -44,6 +45,6 @@ test("single browser-only email verification through the isolated SMTP inbox", a
   await nav.getByRole("link", { name: "Email", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Email verified" })).toBeVisible();
   await page.getByRole("button", { name: "Logout" }).click();
-  await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Home" }).click();
+  await page.getByRole("link", { name: "Back to home" }).click();
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
 });

@@ -5,7 +5,7 @@ import { UnifiedAccessSection, type AccessRole } from "@/components/sections/aut
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Secure access",
-  description: "One secure entry for voters, electoral bodies and platform administrators."
+  description: "Select voter, electoral body or platform administrator access to Octalve Vote."
 };
 
 export default async function AuthPage({ searchParams }: {

@@ -3,12 +3,12 @@
 import { useActionState } from "react";
 import { electoralRegisterAction } from "@/app/actions/staff-auth";
 
-const inputStyle = "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-green-600 disabled:bg-slate-100";
+const inputStyle = "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-[#6b2bda] disabled:bg-slate-100";
 const labelStyle = "mb-2 block text-sm font-semibold text-slate-700";
 
 export function ElectoralRegisterForm({ enabled }: { enabled: boolean }) {
   const [state, action, pending] = useActionState(electoralRegisterAction, { error: "" });
-  return <form action={action} className="mt-8 grid gap-5 sm:grid-cols-2">
+  return <form action={action} className="mt-6 grid gap-4 sm:grid-cols-2">
     <div className="sm:col-span-2"><label htmlFor="org-name" className={labelStyle}>Organization name</label><input id="org-name" name="organization" required minLength={2} maxLength={140} disabled={!enabled} className={inputStyle} /></div>
     <div><label htmlFor="contact-person" className={labelStyle}>Contact person</label><input id="contact-person" name="contactPerson" required minLength={2} maxLength={120} disabled={!enabled} className={inputStyle} /></div>
     <div><label htmlFor="reg-phone" className={labelStyle}>Phone (optional)</label><input id="reg-phone" name="phone" type="tel" maxLength={40} disabled={!enabled} className={inputStyle} /></div>
@@ -22,7 +22,7 @@ export function ElectoralRegisterForm({ enabled }: { enabled: boolean }) {
       <p className="mt-2 text-xs text-slate-500">Selection does not activate a subscription. Account approval and payment verification remain separate.</p>
     </div>
     {state.error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 sm:col-span-2">{state.error}</p>}
-    <div className="sm:col-span-2"><button disabled={!enabled || pending} className="w-full rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-3 font-bold text-white hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50">{pending ? "Submitting..." : "Create pending organization account"}</button></div>
+    <div className="sm:col-span-2"><button disabled={!enabled || pending} className="w-full rounded-xl bg-gradient-to-r from-[#6c28da] to-[#7940e9] px-5 py-3 font-bold text-white hover:from-[#591ebe] hover:to-[#6524d1] disabled:cursor-not-allowed disabled:opacity-50">{pending ? "Submitting..." : "Create pending organization account"}</button></div>
     {!enabled && <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 sm:col-span-2">Organization registration is closed in this review environment. This form will become available after backend configuration and verification.</p>}
   </form>;
 }

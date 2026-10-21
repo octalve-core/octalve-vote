@@ -24,10 +24,12 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await page.getByRole("link", { name: /return home/i }).click();
 
   await page.getByRole("link", { name: /voter entrance/i }).last().click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /your vote, your voice/i })).toBeVisible();
   await page.getByRole("link", { name: /back to home/i }).click();
 
   await page.getByRole("link", { name: "Electoral body portal" }).first().click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /electoral body portal/i })).toBeVisible();
   await page.getByRole("tab", { name: "Register" }).click();
 
@@ -63,12 +65,14 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await expect(page.getByRole("heading", { name: "Dashboard", exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Logout" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /electoral body portal/i })).toBeVisible();
   await page.getByRole("tab", { name: "Register" }).click();
   await register(secondName, secondEmail);
   await expect(page.getByText(firstName)).toHaveCount(0);
 
   await page.getByRole("button", { name: "Logout" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /electoral body portal/i })).toBeVisible();
   await page.getByLabel("Email address").fill(firstEmail);
   await page.getByLabel("Password", { exact: true }).fill("invalid-" + passphrase);
@@ -82,6 +86,7 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await expect(page.getByText(secondName)).toHaveCount(0);
 
   await page.getByRole("button", { name: "Logout" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
 
   // Approved test identity is created by the ephemeral CI setup before this
   // recording, not through an API or database access by this browser journey.
@@ -134,6 +139,7 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await approvedNav.getByRole("link", { name: "Elections" }).click();
   await expect(page.getByRole("heading", { name: "Elections", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Logout" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
 
   // A synthetic verified but UNPAID organization submits an unconfirmed
   // bank reference. It must not change payment authority or unlock elections.
@@ -154,8 +160,9 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await expect(page.getByText("UNPAID", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Logout" }).click();
 
-  await publicNavigation.getByRole("link", { name: "Home" }).click();
+  await page.getByRole("link", { name: "Back to home" }).click();
   await page.getByRole("link", { name: "Platform admin", exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /platform administrator/i })).toBeVisible();
   const adminEmail = process.env.CI_ADMIN_EMAIL;
   const adminPassword = process.env.CI_ADMIN_PASSWORD;
@@ -186,6 +193,6 @@ test("continuous browser journey: two pending electoral bodies, logout and login
   await paymentCard.getByRole("button", { name: "Record review outcome" }).click();
   await expect(page.getByRole("region", { name: "Pending payment claims" }).getByText(claimRef)).toHaveCount(0);
   await page.getByRole("button", { name: "Logout" }).click();
-  await publicNavigation.getByRole("link", { name: "Home" }).click();
+  await page.getByRole("link", { name: "Back to home" }).click();
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
 });
