@@ -22,6 +22,8 @@ test("single browser-only walkthrough of public and protected-role entry flows",
 
   await page.getByRole("link", { name: /return home/i }).click();
   await page.getByRole("link", { name: /voter entrance/i }).last().click();
+  await expect(page.getByRole("heading", { name: /welcome to octalve vote/i })).toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /your vote, your voice/i })).toBeVisible();
   await page.waitForTimeout(1100);
   await expect(page.getByText(/sign-in, otp delivery.*intentionally unavailable/i)).toBeVisible();
@@ -29,6 +31,8 @@ test("single browser-only walkthrough of public and protected-role entry flows",
 
   await page.getByRole("link", { name: /back to home/i }).click();
   await page.getByRole("link", { name: /electoral body portal/i }).first().click();
+  await expect(page.getByRole("heading", { name: /welcome to octalve vote/i })).toBeVisible();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /electoral body portal/i })).toBeVisible();
   await page.waitForTimeout(1100);
   await expect(page.getByRole("button", { name: /sign in securely/i })).toBeDisabled();
@@ -38,14 +42,15 @@ test("single browser-only walkthrough of public and protected-role entry flows",
   await page.waitForTimeout(700);
   await page.getByRole("tab", { name: "Sign in" }).click();
 
-  await nav.getByRole("link", { name: "Home" }).click();
+  await page.getByRole("link", { name: "Back to home" }).click();
   await page.getByRole("link", { name: "Platform admin", exact: true }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: /platform administrator/i })).toBeVisible();
   await page.waitForTimeout(1100);
   await expect(page.getByRole("button", { name: /sign in securely/i })).toBeDisabled();
   await page.waitForTimeout(700);
 
-  await nav.getByRole("link", { name: "Home" }).click();
+  await page.getByRole("link", { name: "Back to home" }).click();
   await expect(page.getByRole("heading", { name: /modern voting made simple/i })).toBeVisible();
   await page.waitForTimeout(1100);
 });
